@@ -1,0 +1,8 @@
+#cloud-config meta-data
+# TEMPLATE: Meta-data for Ubuntu Hyper-V VM
+# Replace <INSTANCE_ID>, <LOCAL_HOSTNAME> as needed
+
+# REQUIRED: Unique instance identifier
+instance-id: <INSTANCE_ID>
+# REQUIRED: Local hostname (should match identity.hostname in user-data)  
+local-hostname: <LOCAL_HOSTNAME>

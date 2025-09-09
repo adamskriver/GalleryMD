@@ -1,0 +1,8 @@
+# Build script
+docker build -t gallerymd-deno .
+
+# Example run command for Windows
+# docker run -p 3000:3000 -v "C:/Users/adam/OneDrive/Documents:/docs" -e MD_ROOT=/docs gallerymd-deno
+
+# Example run command for Linux/Mac  
+# docker run -p 3000:3000 -v "/path/to/documents:/docs" -e MD_ROOT=/docs gallerymd-deno
