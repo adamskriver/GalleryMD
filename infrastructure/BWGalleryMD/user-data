@@ -2,8 +2,6 @@
 autoinstall:
   version: 1
   interactive-sections: []
-  early-commands:
-    - echo 'debconf debconf/frontend select noninteractive' | debconf-set-selections
   locale: en_US
   keyboard:
     layout: us
@@ -24,48 +22,8 @@ autoinstall:
     ethernets:
       eth0:
         dhcp4: true
-  packages:
-    - curl
-    - git
-    - unzip
-  late-commands:
-    - echo 'debconf debconf/frontend select noninteractive' | chroot /target debconf-set-selections
-  
-# Post-installation setup for Deno and the GalleryMD application
-runcmd:
-  # Install Deno
-  - curl -fsSL https://deno.land/install.sh | sh
-  - echo 'export DENO_INSTALL="/home/pewter/.deno"' >> /home/pewter/.bashrc
-  - echo 'export PATH="$DENO_INSTALL/bin:$PATH"' >> /home/pewter/.bashrc
-  
-  # Set up app directory
-  - mkdir -p /home/pewter/gallerymd
-  
-  # Clone the GalleryMD repository (replace with actual git repo if exists)
-  # - git clone https://github.com/yourusername/gallerymd.git /home/pewter/gallerymd
-  
-  # Create systemd service for GalleryMD
-  - |
-    cat > /etc/systemd/system/gallerymd.service << EOF
-    [Unit]
-    Description=GalleryMD Server
-    After=network.target
-
-    [Service]
-    Type=simple
-    User=pewter
-    WorkingDirectory=/home/pewter/gallerymd
-    Environment="PORT=3000"
-    Environment="MD_ROOT=/home/pewter/gallerymd/docs"
-    ExecStart=/home/pewter/.deno/bin/deno run --allow-net --allow-read --allow-env server.ts
-    Restart=on-failure
-
-    [Install]
-    WantedBy=multi-user.target
-    EOF
-
-  # Set correct permissions
-  - chown -R pewter:pewter /home/pewter/gallerymd
-  
-  # Enable the service but don't start it yet (files need to be in place first)
-  - systemctl enable gallerymd.service
+  package_update: false
+  package_upgrade: false
+  packages: []
+  snapd:
+    snap_daemon: disabled

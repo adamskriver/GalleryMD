@@ -24,13 +24,22 @@ interface AppConfig {
 
 function loadConfig(): AppConfig {
   return {
-    port: parseInt(Deno.env.get("PORT") || "3000"),
+    port: parseInt(Deno.env.get("PORT") || "3003"),
     mdRoot: Deno.env.get("MD_ROOT") || "./docs",
     scanInterval: parseInt(Deno.env.get("SCAN_INTERVAL") || "300000"), // 5 minutes
     rateLimitWindowMs: parseInt(Deno.env.get("RATE_LIMIT_WINDOW") || "60000"), // 1 minute
     maxRequestsPerWindow: parseInt(Deno.env.get("MAX_REQUESTS") || "100"),
     cacheMaxAge: parseInt(Deno.env.get("CACHE_MAX_AGE") || "3600"), // 1 hour
-    allowedOrigins: Deno.env.get("ALLOWED_ORIGINS") || "*"
+    allowedOrigins: Deno.env.get("ALLOWED_ORIGINS") || "*",
+    // New: origins allowed to embed this site in frames (space-separated list),
+    // e.g. "https://portfolio.adobe.com https://example.com"
+    // If empty or not provided, framing will remain disallowed by default.
+    // Use the environment variable FRAME_ALLOWED_ORIGINS to explicitly allow embedding.
+    // For Adobe Portfolio you may set FRAME_ALLOWED_ORIGINS="https://portfolio.adobe.com"
+    // Use exact origins only; do not include wildcards.
+    // This value is read below by the framing middleware.
+    // NOTE: Adding origins here relaxes clickjacking protections; restrict to trusted origins.
+    // We'll read this using Deno.env.get('FRAME_ALLOWED_ORIGINS') where needed.
   };
 }
 
@@ -323,6 +332,30 @@ app.use(async (ctx, next) => {
       return;
     }
   }
+  await next();
+});
+
+// Framing / embedding middleware
+app.use(async (ctx, next) => {
+  // Read allowed frame ancestors from environment
+  const frameAllowed = (Deno.env.get('FRAME_ALLOWED_ORIGINS') || '').trim();
+
+  if (frameAllowed) {
+    // Set a restrictive Content-Security-Policy that only allows the configured origins
+    // to embed this site in a frame. Example value: "https://portfolio.adobe.com"
+    // CSP requires the frame-ancestors directive; browsers that support it will honor it.
+    ctx.response.headers.set('Content-Security-Policy', `frame-ancestors ${frameAllowed}`);
+
+    // Remove legacy X-Frame-Options header if present to avoid conflicts. We only remove it
+    // here by ensuring it's not set later; since this server doesn't set it elsewhere,
+    // we proactively clear it for safety.
+    ctx.response.headers.delete('X-Frame-Options');
+  } else {
+    // If no FRAME_ALLOWED_ORIGINS provided, explicitly deny framing via X-Frame-Options
+    // for older browsers that don't support CSP.
+    ctx.response.headers.set('X-Frame-Options', 'DENY');
+  }
+
   await next();
 });
 

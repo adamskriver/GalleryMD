@@ -1,4 +1,39 @@
-# GalleryMD: Deno Edition
+---
+title: Running GalleryMD as a Docker Service with Windows Volume Mount
+---
+
+# Running GalleryMD as a Persistent Docker Service
+
+This case study demonstrates how to run the GalleryMD application in a Docker container on Windows, mounting your local Documents folder and ensuring the service runs independently of your terminal window.
+
+## Steps
+
+1. **Build the Docker image:**
+   ```sh
+   docker build -t gallerymd .
+   ```
+
+2. **Run the container in detached mode with auto-restart and volume mount:**
+   ```sh
+   docker run -d --restart unless-stopped -p 3003:3003 -v "C:\Users\adam\OneDrive\Documents:/app/docs" gallerymd
+   ```
+
+   - `-d`: Detached mode (runs in background)
+   - `--restart unless-stopped`: Auto-restart unless stopped manually
+   - `-p 3003:3003`: Maps port 3003 from container to host
+   - `-v "C:\Users\adam\OneDrive\Documents:/app/docs"`: Mounts your Documents folder into the container at `/app/docs`
+   - `gallerymd`: The image name
+
+3. **Access the app:**
+   - Open your browser to [http://localhost:3003](http://localhost:3003)
+
+4. **Notes:**
+   - The container will keep running even if you close the terminal or restart Docker Desktop.
+   - Make sure Docker Desktop has access to your C: drive (see Docker Desktop > Settings > Resources > File Sharing).
+   - Your Markdown files and images in `C:\Users\adam\OneDrive\Documents` will be available to the app inside the container.
+
+---
+*This case study was generated to document persistent Docker deployment for GalleryMD.*# GalleryMD: Deno Edition
 
 **Project Type:** Web-based Markdown Gallery
 

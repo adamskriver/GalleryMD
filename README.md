@@ -34,10 +34,31 @@ Documents/
     └── CASESTUDY.md
 ```
 
-## 🐳 Docker Usage
 
 ### Build the Image
 ```bash
+## 🐳 Docker Usage
+
+### Build the Image
+```sh
+docker build -t gallerymd .
+```
+
+### Run the Container (with Windows volume mount)
+```sh
+docker run -d --restart unless-stopped -p 3003:3003 -v "C:\Users\adam\OneDrive\Documents:/app/docs" gallerymd
+```
+
+**Explanation:**
+- `-d`: Detached mode (runs in background)
+- `--restart unless-stopped`: Auto-restart unless stopped manually
+- `-p 3003:3003`: Maps port 3003 from container to host
+- `-v "C:\Users\adam\OneDrive\Documents:/app/docs"`: Mounts your Documents folder into the container at `/app/docs`
+- `gallerymd`: The image name
+
+Your Markdown case studies and images in `C:\Users\adam\OneDrive\Documents` will be available to the app inside the container.
+
+If you use Docker Desktop, you can also configure the volume and port mapping via the UI.
 docker build -t gallerymd-deno .
 ```
 
