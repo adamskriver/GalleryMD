@@ -102,8 +102,41 @@ body {
   justify-content: space-between;
   align-items: center;
 }
+/* Textual logo block for NineRiver */
+.logo-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.logo-block .logo {
+  font-family: 'Rubik', sans-serif;
+  font-weight: 500;
+  font-size: var(--font-size-3xl);
+  color: var(--primary-color);
+  margin: 0;
+  line-height: 1;
+}
+.logo-block .title {
+  font-family: 'Rubik', sans-serif;
+  font-weight: 500;
+  font-size: var(--font-size-xl);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1;
+}
 
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo-icon {
+  height: 40px;
+  width: auto;
+}
+
+.logo-text {
   font-size: var(--font-size-2xl);
   font-weight: 700;
   color: var(--primary-color);
