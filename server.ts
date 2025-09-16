@@ -1,6 +1,6 @@
 import { Application, Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 import { walk } from "https://deno.land/std@0.200.0/fs/mod.ts";
-import { extname, join, basename, dirname } from "https://deno.land/std@0.200.0/path/mod.ts";
+import { extname, join, basename, dirname, relative, normalize } from "https://deno.land/std@0.200.0/path/mod.ts";
 
 interface CaseStudy {
   id: string;
@@ -109,9 +109,10 @@ class GalleryService {
       const titleMatch = content.match(/^#\s+(.+)$/m);
       const title = titleMatch ? titleMatch[1].trim() : basename(dir);
 
-      // Look for associated image
-      const imagePath = await this.findAssociatedImage(dir);
-      const imageUrl = imagePath ? `/api/image?path=${encodeURIComponent(imagePath)}` : undefined;
+  // Look for associated image (store path relative to mdRoot so it can be served from the container)
+  const imagePath = await this.findAssociatedImage(dir);
+  const relImagePath = imagePath ? relative(this.mdRoot, imagePath).replace(/\\/g, '/') : undefined;
+  const imageUrl = relImagePath ? `/api/image?path=${encodeURIComponent(relImagePath)}` : undefined;
 
       return {
         id,
@@ -229,36 +230,39 @@ router.get("/api/status", (ctx) => {
 });
 
 router.get("/api/image", async (ctx) => {
-  const imagePath = ctx.request.url.searchParams.get("path");
-  
-  if (!imagePath || typeof imagePath !== 'string') {
+  const relPath = ctx.request.url.searchParams.get("path");
+
+  if (!relPath || typeof relPath !== 'string') {
     ctx.response.status = 400;
     ctx.response.body = { error: "Invalid or missing path parameter" };
     return;
   }
 
   try {
-    // Enhanced security check - normalize and sanitize path first
-    // Remove any "../" sequences that might be used for path traversal
-    const normalizedPath = join(galleryService['mdRoot'], imagePath.replace(/\.\./g, '')).replace(/\\/g, '/');
-    
-    // Then do the standard path resolution check
-    const resolvedPath = Deno.realPathSync(normalizedPath);
-    const resolvedRoot = Deno.realPathSync(galleryService['mdRoot']);
-    
+    // Normalize the relative path and prevent traversal
+    const cleanRel = normalize(relPath).replace(/(^\/+|\.\.+)/g, '').replace(/\\/g, '/');
+
+    // Build absolute path under mdRoot
+    const absPath = join(galleryService['mdRoot'], cleanRel);
+
+    // Resolve real paths asynchronously
+    const resolvedPath = await Deno.realPath(absPath);
+    const resolvedRoot = await Deno.realPath(galleryService['mdRoot']);
+
+    // Ensure the resolved path is inside the mdRoot
     if (!resolvedPath.startsWith(resolvedRoot)) {
       ctx.response.status = 403;
       ctx.response.body = { error: "Access denied" };
       return;
     }
 
-    const fileInfo = await Deno.stat(imagePath);
+    const fileInfo = await Deno.stat(resolvedPath);
     if (!fileInfo.isFile) {
       ctx.response.status = 404;
       return;
     }
 
-    const ext = extname(imagePath).toLowerCase();
+    const ext = extname(resolvedPath).toLowerCase();
     const mimeTypes: Record<string, string> = {
       '.png': 'image/png',
       '.jpg': 'image/jpeg',
@@ -270,8 +274,8 @@ router.get("/api/image", async (ctx) => {
     ctx.response.headers.set("Content-Type", mimeTypes[ext] || "application/octet-stream");
     ctx.response.headers.set("Cache-Control", `public, max-age=${config.cacheMaxAge}`);
     ctx.response.headers.set("X-Content-Type-Options", "nosniff");
-    
-    const file = await Deno.open(imagePath, { read: true });
+
+    const file = await Deno.open(resolvedPath, { read: true });
     ctx.response.body = file.readable;
   } catch (error) {
     console.error("Error serving image:", error);
