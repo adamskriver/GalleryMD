@@ -2,7 +2,7 @@
 # This script updates the GalleryMD Docker container with the latest image from Docker Hub
 
 # Configuration
-$dockerImage = "YOUR_DOCKER_USERNAME/gallerymd:latest"  # Replace with your Docker Hub username
+$dockerImage = "adamskriver/gallerymd:latest"  # Replace with your Docker Hub username
 $containerName = "gallerymd"
 $port = 3000
 $localDocsPath = "C:/Users/adam/OneDrive/Documents"  # Update this with your local path
