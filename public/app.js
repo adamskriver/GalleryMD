@@ -101,11 +101,12 @@ class GalleryApp {
   async handleRefresh() {
     console.log('🔄 Manual refresh triggered');
     
-    // Show loading state on refresh button
+    // Disable refresh button
     const refreshBtn = this.elements.refreshBtn;
-    const originalText = refreshBtn.innerHTML;
-    refreshBtn.innerHTML = '<span class="btn-icon spinner small"></span> Refreshing...';
     refreshBtn.disabled = true;
+    
+    // Show refreshing status in header
+    this.updateStatusIndicator({ isRefreshing: true });
     
     try {
       // Trigger backend refresh
@@ -118,12 +119,18 @@ class GalleryApp {
       // Reload case studies
       await this.loadCaseStudies();
       
+      // Show success status briefly
+      this.updateStatusIndicator({ isRefreshing: false, justRefreshed: true });
+      setTimeout(() => {
+        this.updateStatusIndicator({ isRefreshing: false });
+      }, 2000);
+      
     } catch (error) {
       console.error('❌ Error during refresh:', error);
+      this.updateStatusIndicator({ error: true });
       this.showError('Failed to refresh gallery');
     } finally {
-      // Restore button state
-      refreshBtn.innerHTML = originalText;
+      // Re-enable button
       refreshBtn.disabled = false;
     }
   }
@@ -317,10 +324,28 @@ class GalleryApp {
     const dot = indicator.querySelector('.status-dot');
     const text = indicator.querySelector('.status-text');
     
-    // Reset classes
+    // Remove any existing spinner
+    const existingSpinner = indicator.querySelector('.status-spinner');
+    if (existingSpinner) {
+      existingSpinner.remove();
+    }
+    
+    // Show dot by default
+    dot.style.display = 'block';
+    
+    // Reset dot classes
     dot.className = 'status-dot';
     
-    if (status.error) {
+    if (status.isRefreshing) {
+      // Hide dot and show spinner
+      dot.style.display = 'none';
+      const spinner = document.createElement('span');
+      spinner.className = 'status-spinner';
+      indicator.insertBefore(spinner, text);
+      text.textContent = 'Refreshing...';
+    } else if (status.justRefreshed) {
+      text.textContent = 'Updated!';
+    } else if (status.error) {
       dot.classList.add('error');
       text.textContent = 'Connection Error';
     } else if (status.isScanning) {
