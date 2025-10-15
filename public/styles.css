@@ -233,6 +233,43 @@ body {
   font-size: var(--font-size-base);
 }
 
+/* Floating Refresh Button */
+.floating-refresh-btn {
+  position: fixed;
+  bottom: var(--spacing-xl);
+  right: var(--spacing-xl);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px var(--shadow-hover);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  transition: all var(--transition-normal);
+  z-index: 50;
+}
+
+.floating-refresh-btn:hover {
+  background: var(--primary-dark);
+  transform: scale(1.1) rotate(15deg);
+  box-shadow: 0 6px 20px var(--shadow-hover);
+}
+
+.floating-refresh-btn:active {
+  transform: scale(0.95) rotate(-15deg);
+}
+
+.floating-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
 /* Main Content */
 .main {
   flex: 1;
@@ -638,18 +675,40 @@ body {
 /* Responsive Design */
 @media (max-width: 768px) {
   .container {
-    padding: 0 var(--spacing-md);
+    padding: 0 var(--spacing-sm);
+  }
+  
+  .header {
+    padding: var(--spacing-sm) 0;
   }
   
   .header .container {
-    flex-direction: column;
-    gap: var(--spacing-md);
-    text-align: center;
+    gap: var(--spacing-sm);
+  }
+  
+  .logo-block {
+    gap: var(--spacing-sm);
+  }
+  
+  .logo-block .logo {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .logo-block .title {
+    font-size: var(--font-size-base);
   }
   
   .header-actions {
-    width: 100%;
-    justify-content: center;
+    width: auto;
+    justify-content: flex-end;
+  }
+  
+  .floating-refresh-btn {
+    bottom: var(--spacing-lg);
+    right: var(--spacing-lg);
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
   }
   
   .gallery-grid {
@@ -675,6 +734,30 @@ body {
 }
 
 @media (max-width: 480px) {
+  .container {
+    padding: 0 var(--spacing-xs);
+  }
+  
+  .header {
+    padding: var(--spacing-xs) 0;
+  }
+  
+  .logo-block .logo {
+    font-size: var(--font-size-xl);
+  }
+  
+  .logo-block .title {
+    font-size: var(--font-size-sm);
+  }
+  
+  .floating-refresh-btn {
+    bottom: var(--spacing-md);
+    right: var(--spacing-md);
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+  }
+  
   .case-study-card {
     margin: 0 -var(--spacing-sm);
   }
