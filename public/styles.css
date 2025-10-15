@@ -105,8 +105,9 @@ body {
 /* Textual logo block for NineRiver */
 .logo-block {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-md);
 }
 .logo-block .logo {
   font-family: 'Rubik', sans-serif;
@@ -119,7 +120,7 @@ body {
 .logo-block .title {
   font-family: 'Rubik', sans-serif;
   font-weight: 500;
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   color: var(--text-primary);
   margin: 0;
   line-height: 1;
