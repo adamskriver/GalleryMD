@@ -1,0 +1,35 @@
+name: Test Self-Hosted Runner
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
+
+jobs:
+  test:
+    runs-on: self-hosted
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Show runner info
+        run: |
+          echo "Runner name: $env:COMPUTERNAME"
+          echo "Current directory: $(Get-Location)"
+          echo "PowerShell version: $($PSVersionTable.PSVersion)"
+      
+      - name: List repository files
+        run: |
+          Get-ChildItem -Recurse -Depth 1 | Select-Object Name, Length
+      
+      - name: Test Docker availability
+        run: |
+          docker --version
+          docker ps
+      
+      - name: Success message
+        run: |
+          echo "✓ Self-hosted runner is working correctly!"
