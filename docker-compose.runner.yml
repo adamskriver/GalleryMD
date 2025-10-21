@@ -1,0 +1,16 @@
+services:
+  runner:
+    image: myoung34/github-runner:latest
+    container_name: gallerymd-runner
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      RUNNER_WORKDIR: /tmp/runner
+      RUNNER_SCOPE: repo
+    volumes:
+      - runner_work:/tmp/runner
+      - /var/run/docker.sock:/var/run/docker.sock  # Needed if your workflows use Docker
+
+volumes:
+  runner_work:
