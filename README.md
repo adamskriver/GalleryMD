@@ -165,6 +165,27 @@ set MD_ROOT=C:\path\to\your\documents
 2. Reduce scan frequency if needed
 3. Consider excluding large subdirectories
 
+## 🔄 CI/CD with Self-Hosted Runner
+
+This project includes GitHub Actions workflows for automated builds. To run them locally:
+
+### Quick Setup
+```powershell
+# 1. Set environment variables (replace with your GitHub PAT)
+$env:GH_PAT = "ghp_YourToken"
+$env:REPO = "adamskriver/GalleryMD"
+
+# 2. Generate runner registration token
+.\scripts\get-runner-token.ps1
+
+# 3. Start the runner container
+docker-compose -f docker-compose.runner.yml up -d
+```
+
+The runner will appear at: `https://github.com/adamskriver/GalleryMD/settings/actions/runners`
+
+See [RUNNER_SETUP.md](RUNNER_SETUP.md) for detailed setup instructions including PAT creation.
+
 ## 🆚 Improvements Over Previous Version
 
 - **Faster Loading**: Deno's performance benefits and optimized caching
@@ -172,6 +193,13 @@ set MD_ROOT=C:\path\to\your\documents
 - **Cleaner Design**: Light theme with modern aesthetics
 - **More Reliable**: Better error handling and retry mechanisms
 - **Lighter Weight**: No heavy Node.js dependencies
+- **Full CI/CD**: Automated testing and builds with self-hosted runners
+
+## 📚 Additional Documentation
+
+- **[CASESTUDY.md](CASESTUDY.md)** - Project overview and architecture decisions
+- **[RUNNER_SETUP.md](RUNNER_SETUP.md)** - Detailed CI/CD runner setup guide
+- **[infrastructure/](infrastructure/)** - VM deployment scripts and guides
 
 ## 👥 Authors
 

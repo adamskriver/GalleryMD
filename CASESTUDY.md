@@ -27,14 +27,25 @@
 ## 4. Docker Deployment
 
 - **Tiny Alpine Image**: Under 50 MB, runs as a non-root user for security.
-- **Volume Mount**: Easy to mount your local “Documents” folder so edits appear in real time.
+- **Volume Mount**: Easy to mount your local "Documents" folder so edits appear in real time.
 - **One-Command Run**: `docker run -d --restart unless-stopped -p 3003:3003 -v "C:\Users\you\Documents:/app/docs" gallerymd`
 
-## 5. Engineering Approach
+## 5. CI/CD & Self-Hosted Runners
+
+- **GitHub Actions Integration**: Automated builds and tests run on every push to main.
+- **Docker-Based Runner**: Self-hosted GitHub Actions runner runs in a lightweight container alongside the app—no GitHub-hosted minutes consumed.
+- **Local Build Validation**: Workflows build the Docker image locally on the self-hosted runner, catching issues before deployment.
+- **PowerShell Automation**: Simple scripts fetch runner registration tokens via the GitHub API and configure the Docker environment.
+- **No Blank Screens During CI**: The runner and app containers operate independently; the gallery stays responsive even while builds run in the background.
+
+> This setup demonstrates how a small project can achieve full CI/CD capabilities with minimal infrastructure—just Docker Desktop and a few PowerShell scripts. The self-hosted runner approach is especially valuable for private repos where GitHub-hosted runner minutes are limited, and it ensures builds happen in the same Windows environment where the app actually runs.
+
+## 6. Engineering Approach
 
 - **Traditional Engineering**: Explicit middleware chains, error handling, typed interfaces, and secure file operations.
 - **Performance Focus**: Automatic background refresh and an interface optimized for responsiveness and speed.
+- **Infrastructure as Code**: Dockerfiles, compose configurations, and cloud-init scripts make deployment repeatable and auditable.
 
 ---
 
-Built with ❤️ using Deno • Deployed via Docker
+Built with ❤️ using Deno • Deployed via Docker • CI/CD with GitHub Actions
