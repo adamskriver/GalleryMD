@@ -1,6 +1,7 @@
 import { Application, Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 import { walk } from "https://deno.land/std@0.200.0/fs/mod.ts";
 import { extname, join, basename, dirname, relative, normalize } from "https://deno.land/std@0.200.0/path/mod.ts";
+import { loadFilterConfig, shouldExcludePath, type FilterConfig } from "./config.ts";
 
 interface CaseStudy {
   id: string;
@@ -50,6 +51,7 @@ class GalleryService {
   private isScanning = false;
   private lastScanTime = 0;
   private readonly mdRoot: string;
+  private filterConfig: FilterConfig | null = null;
 
   constructor() {
     this.mdRoot = config.mdRoot;
@@ -58,6 +60,7 @@ class GalleryService {
 
   async initialize() {
     console.log("🚀 Initializing gallery service...");
+    this.filterConfig = await loadFilterConfig(this.mdRoot);
     await this.scanDirectory();
   }
 
@@ -80,6 +83,14 @@ class GalleryService {
         exts: [".md"],
         match: [/CASESTUDY\.md$/i]
       })) {
+        // Apply filtering
+        const relativePath = relative(this.mdRoot, entry.path);
+        
+        if (this.filterConfig && shouldExcludePath(relativePath, this.filterConfig, "CASESTUDY.md")) {
+          console.log(`⊘ Filtered: ${relativePath}`);
+          continue;
+        }
+        
         filePromises.push(entry.path);
       }
       

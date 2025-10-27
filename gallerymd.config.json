@@ -1,0 +1,23 @@
+{
+  "filters": {
+    "excludePaths": [
+      "**/runner-data*/**",
+      "**/.github/workflows/runner-data*/**",
+      "**/node_modules/**",
+      "**/.git/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/.casestudy/**",
+      "**/.documentation/**",
+      "**/.implementation-notes/**"
+    ],
+    "excludePatterns": {
+      "CASESTUDY.md": [
+        "**/runner-data*/**",
+        "**/_work/**",
+        "**/actions-runner/**",
+        "**/.github/**/runner-data*/**"
+      ]
+    }
+  }
+}

@@ -5,6 +5,8 @@ WORKDIR /app
 
 # Copy application files
 COPY server.ts .
+COPY config.ts .
+COPY gallerymd.config.json .
 COPY public/ ./public/
 
 # Create cache for dependencies

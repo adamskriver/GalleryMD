@@ -8,6 +8,7 @@ A fast, modern web-based gallery system for browsing and viewing Markdown case s
 - **Always-Visible Loading**: Clear loading indicators so users know when content is loading
 - **Light Theme**: Clean, modern light-themed UI with smooth animations
 - **Smart Image Detection**: Automatically finds and displays CASESTUDY.png/jpg/bmp thumbnails
+- **Flexible Filtering**: Exclude directories and files using configurable glob patterns
 - **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
 - **Docker Ready**: Runs in secure Alpine-based container
 - **Background Scanning**: Continuously monitors for new case studies
@@ -105,6 +106,32 @@ set MD_ROOT=C:\path\to\your\documents
 - `GET /api/status` - Server status and scan progress
 - `GET /api/image?path=...` - Serve case study images
 
+## 🔍 Filtering Configuration
+
+GalleryMD supports filtering to exclude specific directories from scanning. This prevents duplicate `CASESTUDY.md` files from appearing when they exist in CI/CD cache directories or build artifacts.
+
+Create a `gallerymd.config.json` file in your MD_ROOT directory:
+
+```json
+{
+  "filters": {
+    "excludePaths": [
+      "**/runner-data*/**",
+      "**/node_modules/**",
+      "**/.git/**"
+    ],
+    "excludePatterns": {
+      "CASESTUDY.md": [
+        "**/runner-data*/**",
+        "**/_work/**"
+      ]
+    }
+  }
+}
+```
+
+See **[.documentation/FILTERING.md](.documentation/FILTERING.md)** for detailed documentation on glob patterns and configuration options.
+
 ## 🎨 UI Features
 
 ### Loading States
@@ -197,9 +224,10 @@ See [RUNNER_SETUP.md](RUNNER_SETUP.md) for detailed setup instructions including
 
 ## 📚 Additional Documentation
 
-- **[CASESTUDY.md](CASESTUDY.md)** - Project overview and architecture decisions
-- **[RUNNER_SETUP.md](RUNNER_SETUP.md)** - Detailed CI/CD runner setup guide
-- **[infrastructure/](infrastructure/)** - VM deployment scripts and guides
+- **[.casestudy/CASESTUDY.md](.casestudy/CASESTUDY.md)** - Project overview and architecture decisions
+- **[.documentation/FILTERING.md](.documentation/FILTERING.md)** - Detailed filtering configuration guide
+- **[.documentation/RUNNER_SETUP.md](.documentation/RUNNER_SETUP.md)** - Detailed CI/CD runner setup guide
+- **[archive/infrastructure/](archive/infrastructure/)** - VM deployment scripts and guides
 
 ## 👥 Authors
 
