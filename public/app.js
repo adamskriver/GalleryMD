@@ -163,14 +163,12 @@ class GalleryApp {
     card.setAttribute('data-id', caseStudy.id);
     card.addEventListener('click', () => this.openModal(caseStudy.id));
     
-    const imageHtml = caseStudy.imageUrl ? 
-      `<img src="${caseStudy.imageUrl}" alt="${caseStudy.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;card-image-placeholder&quot;>📄</div>'">` :
-      `<div class="card-image-placeholder">📄</div>`;
+    // Set background image if available
+    if (caseStudy.imageUrl) {
+      card.style.backgroundImage = `url(${caseStudy.imageUrl})`;
+    }
     
     card.innerHTML = `
-      <div class="card-image">
-        ${imageHtml}
-      </div>
       <div class="card-content">
         <h3 class="card-title">${this.escapeHtml(caseStudy.title)}</h3>
         <div class="card-meta">
