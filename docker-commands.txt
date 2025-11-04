@@ -1,9 +1,0 @@
-# Build script
-docker build -t gallerymd-deno .
-
-# Production run command with auto-restart (recommended)
-docker run -d --name gallerymd --restart unless-stopped -p 3003:3003 -v 'Z:/Nineriver Technologies/Dev:/docs' -e MD_ROOT=/docs gallerymd-deno
-
-# Alternative: run in foreground without auto-restart
-# docker run -p 3003:3003 -v 'Z:/Nineriver Technologies/Dev:/docs' -e MD_ROOT=/docs gallerymd-deno
-
