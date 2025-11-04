@@ -461,10 +461,13 @@ Deno.addSignalListener("SIGINT", () => {
   Deno.exit(0);
 });
 
-Deno.addSignalListener("SIGTERM", () => {
-  console.log("🛑 Shutting down server...");
-  Deno.exit(0);
-});
+// SIGTERM is not supported on Windows
+if (Deno.build.os !== "windows") {
+  Deno.addSignalListener("SIGTERM", () => {
+    console.log("🛑 Shutting down server...");
+    Deno.exit(0);
+  });
+}
 
 // Start the server
 console.log(`🌐 Starting server on port ${config.port}...`);
