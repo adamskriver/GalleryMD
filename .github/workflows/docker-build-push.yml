@@ -24,7 +24,7 @@ jobs:
           docker compose down gallerymd || true
           
           # Rebuild and restart the gallerymd service
-          # MD_ROOT_HOST defaults to ./docs in docker-compose.yml for CI
+          # .env file (git-ignored) contains MD_ROOT_HOST for local path mounting
           docker compose build gallerymd
           docker compose up -d gallerymd
           
