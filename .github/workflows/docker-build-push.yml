@@ -13,11 +13,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Create .env with secrets
+      - name: Create .env for deployment
         run: |
-          # Inject GitHub secrets into .env for deployment
-          echo "ADMIN_TOKEN=${{ secrets.ADMIN_TOKEN }}" >> .env.deploy
+          # Create .env with required configuration
+          # MD_ROOT_HOST is set to the host path where case studies are located
+          cat > .env << 'EOF'
+          REPO=adamskriver/GalleryMD
+          RUNNER_NAME=gallerymd-runner
+          LABELS=self-hosted,docker,linux
+          RUNNER_WORKDIR=/tmp/runner
+          RUNNER_SCOPE=repo
+          MD_ROOT_HOST=Z:/Nineriver Technologies/Dev
+          ADMIN_TOKEN=${{ secrets.ADMIN_TOKEN }}
+          EOF
           
+          echo "✓ Created .env file with MD_ROOT_HOST configuration"
+      
       - name: Deploy with Docker Compose
         run: |
           # Stop and remove existing container if it exists
@@ -40,4 +51,4 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          rm -f .env.deploy
+          rm -f .env
