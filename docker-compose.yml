@@ -45,6 +45,7 @@ services:
     volumes:
       - runner_work:/tmp/runner
       - /var/run/docker.sock:/var/run/docker.sock  # Docker-in-Docker for workflows
+      - ${MD_ROOT_HOST:-./docs}:/mnt/casestudies:ro  # Mount case studies directory
     networks:
       - gallerymd-network
     depends_on:
