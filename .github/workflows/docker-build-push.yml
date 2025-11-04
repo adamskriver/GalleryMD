@@ -20,7 +20,10 @@ jobs:
           
       - name: Deploy with Docker Compose
         run: |
-          # Rebuild and restart only the gallerymd service
+          # Stop and remove existing container if it exists
+          docker compose down gallerymd || true
+          
+          # Rebuild and restart the gallerymd service
           # MD_ROOT_HOST defaults to ./docs in docker-compose.yml for CI
           docker compose build gallerymd
           docker compose up -d gallerymd
