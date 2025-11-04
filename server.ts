@@ -225,7 +225,26 @@ router.get("/api/casestudy/:id", (ctx) => {
   };
 });
 
+// Protect refresh endpoint with a simple admin token check (replace with real auth as needed)
+const ADMIN_TOKEN = Deno.env.get('ADMIN_TOKEN') || '';
+
 router.post("/api/refresh", async (ctx) => {
+  // Require an admin token in header 'X-Admin-Token'
+  if (!ADMIN_TOKEN) {
+    // If no token configured, deny by default to avoid accidental open endpoint
+    ctx.response.status = 403;
+    ctx.response.body = { success: false, error: "Server misconfiguration: admin token required" };
+    return;
+  }
+
+  const provided = ctx.request.headers.get('x-admin-token') || '';
+  if (provided !== ADMIN_TOKEN) {
+    console.warn(`⚠️ Unauthorized refresh attempt from IP: ${ctx.request.ip}`);
+    ctx.response.status = 403;
+    ctx.response.body = { success: false, error: "Unauthorized" };
+    return;
+  }
+
   await galleryService.refreshCache();
   ctx.response.body = {
     success: true,
@@ -336,9 +355,30 @@ app.use(async (ctx, next) => {
 // CORS middleware for API endpoints
 app.use(async (ctx, next) => {
   if (ctx.request.url.pathname.startsWith('/api')) {
-    ctx.response.headers.set("Access-Control-Allow-Origin", config.allowedOrigins);
+    // Robust CORS: only allow configured origins (space-separated) or '*' for permissive mode.
+    const rawAllowed = (config.allowedOrigins || '').trim();
+    const allowAll = rawAllowed === '*';
+    const allowedList = allowAll ? [] : rawAllowed.split(/\s+/).filter(Boolean);
+
+    const origin = ctx.request.headers.get('origin');
+
+    if (allowAll) {
+      ctx.response.headers.set('Access-Control-Allow-Origin', '*');
+    } else if (origin && allowedList.includes(origin)) {
+      // Echo the exact origin back (recommended when not using '*')
+      ctx.response.headers.set('Access-Control-Allow-Origin', origin);
+      // Optional: allow credentials only when using specific origins
+      ctx.response.headers.set('Access-Control-Allow-Credentials', 'false');
+    } else {
+      // No allowed origin: do not set CORS headers (will be blocked by browser)
+      // Optionally, log suspicious cross-origin attempts
+      if (origin) {
+        console.warn(`⚠️ Blocked CORS request from disallowed origin: ${origin}`);
+      }
+    }
+
     ctx.response.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    ctx.response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    ctx.response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Admin-Token");
     ctx.response.headers.set("Access-Control-Max-Age", "86400"); // 24 hours
 
     // Handle preflight OPTIONS request
