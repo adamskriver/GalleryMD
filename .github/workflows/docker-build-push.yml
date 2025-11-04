@@ -1,48 +1,39 @@
-name: Docker Build and Push
+name: Deploy GalleryMD
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:  # Allows manual triggering
 
 jobs:
-  build-and-push:
+  deploy:
     runs-on: self-hosted
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Build Docker image locally
+      - name: Create .env with secrets
         run: |
-          docker build -t gallerymd-deno:latest .
-          echo "✓ Docker image built successfully"
-      
-      - name: Show image info
-        run: |
-          docker images gallerymd-deno:latest
-      
-      - name: Restart gallerymd container
-        run: |
-          echo "Stopping existing gallerymd container (if running)..."
-          docker stop gallerymd || true
-          docker rm gallerymd || true
+          # Inject GitHub secrets into .env for deployment
+          echo "ADMIN_TOKEN=${{ secrets.ADMIN_TOKEN }}" >> .env.deploy
           
-          echo "Starting new gallerymd container..."
-          docker run -d \
-            --name gallerymd \
-            --restart unless-stopped \
-            -p 3003:3003 \
-            -v 'Z:/Nineriver Technologies/Dev:/docs' \
-            -e MD_ROOT=/docs \
-            gallerymd-deno:latest
+      - name: Deploy with Docker Compose
+        run: |
+          # Rebuild and restart only the gallerymd service
+          docker compose build gallerymd
+          docker compose up -d gallerymd
           
-          echo "✓ Container restarted with updated image"
+          echo "✓ GalleryMD deployed successfully"
       
-      - name: Verify container is running
+      - name: Verify deployment
         run: |
           sleep 3
-          docker ps --filter "name=gallerymd" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+          docker compose ps
+          docker compose logs --tail=20 gallerymd
           echo "✓ Deployment complete!"
+      
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f .env.deploy
