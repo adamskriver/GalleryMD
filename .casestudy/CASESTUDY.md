@@ -14,7 +14,8 @@
 - **In-Memory Cache**: On startup, the service scans the configured documents folder for `CASESTUDY.md` files (and matching images) and caches the results in memory for millisecond-fast API responses.
 - **Background Scanning**: A timer-based scanner silently refreshes the cache every few minutes; users can also trigger a manual refresh via a button or API call.
 - **Strong TypeScript**: Defined interfaces for case studies, secure path traversal protection, and crypto-backed IDs ensure robust, maintainable code.
-- **Production-Ready**: Built-in rate limiting, CORS, and security headers (CSP, X-Frame-Options) make it safe for public deployment.
+- **Production-Ready**: Built-in rate limiting, configurable CORS with origin whitelisting, admin token protection for sensitive endpoints, and security headers (CSP frame-ancestors, X-Frame-Options) make it safe for public deployment.
+- **Smart Filtering**: Configurable glob patterns exclude CI/CD artifacts, build directories, and other non-content paths from the gallery to prevent duplicate entries.
 
 ## 3. Frontend & UX
 
@@ -28,24 +29,37 @@
 
 - **Tiny Alpine Image**: Under 50 MB, runs as a non-root user for security.
 - **Volume Mount**: Easy to mount your local "Documents" folder so edits appear in real time.
+- **Consolidated Compose**: Single `docker-compose.yml` orchestrates both the gallery app and optional self-hosted GitHub Actions runner with automated token refresh.
 - **One-Command Run**: `docker run -d --restart unless-stopped -p 3003:3003 -v "C:\Users\you\Documents:/app/docs" gallerymd`
+- **Environment-Based Config**: CORS origins, admin tokens, frame embedding permissions, and scanning intervals all configured via environment variables for flexible deployment.
 
 ## 5. CI/CD & Self-Hosted Runners
 
 - **GitHub Actions Integration**: Automated builds and tests run on every push to main.
 - **Docker-Based Runner**: Self-hosted GitHub Actions runner runs in a lightweight container alongside the app—no GitHub-hosted minutes consumed.
+- **Automated Token Management**: PowerShell script (`Start-GalleryMD.ps1`) fetches fresh runner registration tokens via GitHub CLI and updates the environment automatically—no manual token pasting required.
+- **Single Compose File**: Both app and runner services defined in one `docker-compose.yml` for simplified deployment and lifecycle management.
 - **Local Build Validation**: Workflows build the Docker image locally on the self-hosted runner, catching issues before deployment.
-- **PowerShell Automation**: Simple scripts fetch runner registration tokens via the GitHub API and configure the Docker environment.
 - **No Blank Screens During CI**: The runner and app containers operate independently; the gallery stays responsive even while builds run in the background.
 
-> This setup demonstrates how a small project can achieve full CI/CD capabilities with minimal infrastructure—just Docker Desktop and a few PowerShell scripts. The self-hosted runner approach is especially valuable for private repos where GitHub-hosted runner minutes are limited, and it ensures builds happen in the same Windows environment where the app actually runs.
+> This setup demonstrates how a small project can achieve full CI/CD capabilities with minimal infrastructure—just Docker Desktop and a few PowerShell scripts. The self-hosted runner approach is especially valuable for private repos where GitHub-hosted runner minutes are limited, and it ensures builds happen in the same Windows environment where the app actually runs. The automated token refresh eliminates the previous manual workflow of fetching tokens and updating `.env` files every hour.
 
-## 6. Engineering Approach
+## 6. Security & Production Readiness
+
+- **CORS Protection**: Configurable origin whitelisting prevents unauthorized cross-origin API access while allowing trusted domains.
+- **Admin Token Authentication**: Sensitive endpoints like `/api/refresh` require an admin token header to prevent abuse and unauthorized cache manipulation.
+- **Frame Embedding Control**: Content Security Policy with `frame-ancestors` directive allows controlled embedding (e.g., Adobe Portfolio) while blocking unauthorized iframe usage.
+- **Path Traversal Prevention**: Async `realPath` resolution ensures all file access stays within the configured document root.
+- **Rate Limiting**: Per-IP request throttling (100 requests/minute by default) protects against DoS and excessive API usage.
+- **Non-Root Execution**: Docker container runs as unprivileged user (`deno:deno`) for defense-in-depth security.
+
+## 7. Engineering Approach
 
 - **Traditional Engineering**: Explicit middleware chains, error handling, typed interfaces, and secure file operations.
 - **Performance Focus**: Automatic background refresh and an interface optimized for responsiveness and speed.
 - **Infrastructure as Code**: Dockerfiles, compose configurations, and cloud-init scripts make deployment repeatable and auditable.
+- **Open Source**: Repository made public (November 2025) after thorough security audit to ensure no credentials or sensitive data in git history.
 
 ---
 
-Built with ❤️ using Deno • Deployed via Docker • CI/CD with GitHub Actions
+Built with ❤️ using Deno • Deployed via Docker • CI/CD with GitHub Actions • Open Source
