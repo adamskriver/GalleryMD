@@ -109,14 +109,8 @@ class GalleryApp {
     this.updateStatusIndicator({ isRefreshing: true });
     
     try {
-      // Trigger backend refresh
-      const refreshResponse = await fetch('/api/refresh', { method: 'POST' });
-      
-      if (!refreshResponse.ok) {
-        throw new Error('Failed to refresh cache');
-      }
-      
-      // Reload case studies
+      // Just reload case studies - background scanning will pick up changes
+      // No need to call /api/refresh since that requires admin auth
       await this.loadCaseStudies();
       
       // Show success status briefly
