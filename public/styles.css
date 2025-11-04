@@ -408,7 +408,7 @@ body {
   display: flex;
   flex-direction: column;
   box-shadow: 0 1px 3px var(--shadow-color);
-  min-height: 300px;
+  aspect-ratio: 4 / 5;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -425,7 +425,7 @@ body {
   padding: var(--spacing-md);
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(8px);
   border-radius: var(--radius-md);
   margin-top: auto;
@@ -645,6 +645,17 @@ body {
   text-align: center;
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
+}
+
+.footer a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
 }
 
 /* Utility Classes */
