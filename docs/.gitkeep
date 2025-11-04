@@ -1,0 +1,2 @@
+This directory is used as a default mount point for CI/CD.
+In production, set MD_ROOT_HOST environment variable to your actual documents directory.

@@ -21,6 +21,7 @@ jobs:
       - name: Deploy with Docker Compose
         run: |
           # Rebuild and restart only the gallerymd service
+          # MD_ROOT_HOST defaults to ./docs in docker-compose.yml for CI
           docker compose build gallerymd
           docker compose up -d gallerymd
           

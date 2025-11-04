@@ -18,7 +18,8 @@ services:
       - ALLOWED_ORIGINS=*
       - ADMIN_TOKEN=${ADMIN_TOKEN}
     volumes:
-      - ${MD_ROOT_HOST:-Z:/Nineriver Technologies/Dev}:/docs:ro
+      # Only mount volume if MD_ROOT_HOST is set (skips mount in CI)
+      - ${MD_ROOT_HOST:-./docs}:/docs:ro
     networks:
       - gallerymd-network
     healthcheck:
