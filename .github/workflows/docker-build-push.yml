@@ -16,14 +16,14 @@ jobs:
       - name: Create .env for deployment
         run: |
           # Create .env with required configuration
-          # MD_ROOT_HOST points to the path mounted in the runner container
+          # Use /host_mnt/z for WSL2 Docker to access Windows Z: drive
           cat > .env << 'EOF'
           REPO=adamskriver/GalleryMD
           RUNNER_NAME=gallerymd-runner
           LABELS=self-hosted,docker,linux
           RUNNER_WORKDIR=/tmp/runner
           RUNNER_SCOPE=repo
-          MD_ROOT_HOST=/mnt/casestudies
+          MD_ROOT_HOST=/host_mnt/z/Nineriver Technologies/Dev
           ADMIN_TOKEN=${{ secrets.ADMIN_TOKEN }}
           EOF
           
