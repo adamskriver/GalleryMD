@@ -37,13 +37,17 @@ services:
     environment:
       - REPO_URL=https://github.com/${REPO}
       - RUNNER_NAME=${RUNNER_NAME:-gallerymd-runner}
-      - RUNNER_TOKEN=${RUNNER_TOKEN}
+      # Use PAT if available, otherwise fall back to RUNNER_TOKEN
+      - ACCESS_TOKEN=${GITHUB_PAT:-}
+      - RUNNER_TOKEN=${RUNNER_TOKEN:-}
       - RUNNER_WORKDIR=${RUNNER_WORKDIR:-/tmp/runner}
       - LABELS=${LABELS:-self-hosted,docker,linux}
       - RUNNER_SCOPE=${RUNNER_SCOPE:-repo}
       - DISABLE_AUTO_UPDATE=true
+      - EPHEMERAL=${EPHEMERAL:-false}
     volumes:
       - runner_work:/tmp/runner
+      - runner_config:/home/docker/.runner
       - /var/run/docker.sock:/var/run/docker.sock  # Docker-in-Docker for workflows
     networks:
       - gallerymd-network
@@ -56,4 +60,6 @@ networks:
 
 volumes:
   runner_work:
+    driver: local
+  runner_config:
     driver: local

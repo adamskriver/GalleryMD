@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  # GitHub Actions Self-Hosted Runner with PAT authentication
+  runner:
+    image: myoung34/github-runner:latest
+    container_name: gallerymd-runner-pat
+    restart: unless-stopped
+    environment:
+      - REPO_URL=https://github.com/${REPO}
+      - RUNNER_NAME=${RUNNER_NAME:-gallerymd-runner-pat}
+      - ACCESS_TOKEN=${GITHUB_PAT}  # Use PAT instead of RUNNER_TOKEN
+      - RUNNER_WORKDIR=${RUNNER_WORKDIR:-/tmp/runner}
+      - LABELS=${LABELS:-self-hosted,docker,linux}
+      - RUNNER_SCOPE=${RUNNER_SCOPE:-repo}
+      - DISABLE_AUTO_UPDATE=true
+      - EPHEMERAL=false  # Keep runner registered
+    volumes:
+      - runner_work:/tmp/runner
+      - runner_config:/home/docker/.runner  # Persist runner configuration
+      - /var/run/docker.sock:/var/run/docker.sock  # Docker-in-Docker
+    networks:
+      - gallerymd-network
+
+networks:
+  gallerymd-network:
+    external: true
+
+volumes:
+  runner_work:
+    driver: local
+  runner_config:
+    driver: local
